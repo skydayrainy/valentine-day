@@ -1,5 +1,6 @@
 // ===============================
 // Valentine interactive script
+// NO runs forever + stays on screen (PC + mobile)
 // ===============================
 
 const yesBtn = document.getElementById('yesBtn');
@@ -8,63 +9,62 @@ const modal = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
-// Чтобы кнопка NO всегда была поверх карточки
-noBtn.style.zIndex = '10';
+// Make NO always clickable/visible above other elements
+noBtn.style.zIndex = '50';
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
+// Clamp helper
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+function getViewport() {
+  // VisualViewport helps on mobile where address bar changes height
+  const vw = window.visualViewport?.width || window.innerWidth;
+  const vh = window.visualViewport?.height || window.innerHeight;
+  return { vw, vh };
 }
 
-// -------------------------------
-// NO button always stays on-screen
-// -------------------------------
 function moveNoButton() {
   const padding = 16;
 
-  // Реальные размеры кнопки (надежнее, чем getBoundingClientRect в момент анимаций)
-  const btnWidth = noBtn.offsetWidth || 100;
-  const btnHeight = noBtn.offsetHeight || 40;
+  const { vw, vh } = getViewport();
 
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  // Reliable size (fallback if not computed yet)
+  const bw = noBtn.offsetWidth || 110;
+  const bh = noBtn.offsetHeight || 44;
 
-  // Границы, чтобы кнопка НЕ выходила за экран
+  // Compute safe bounds
   const minX = padding;
   const minY = padding;
-  const maxX = Math.max(minX, vw - btnWidth - padding);
-  const maxY = Math.max(minY, vh - btnHeight - padding);
+  const maxX = Math.max(minX, vw - bw - padding);
+  const maxY = Math.max(minY, vh - bh - padding);
 
+  // Pick random spot inside safe bounds
   const x = clamp(Math.floor(Math.random() * (maxX - minX + 1)) + minX, minX, maxX);
   const y = clamp(Math.floor(Math.random() * (maxY - minY + 1)) + minY, minY, maxY);
 
+  // Place inside viewport
   noBtn.style.position = 'fixed';
   noBtn.style.left = `${x}px`;
   noBtn.style.top = `${y}px`;
 }
 
-// На всякий случай: стартовая позиция внутри экрана
-window.addEventListener('load', () => {
-  // чтобы не прыгала сразу — можно закомментировать
-  // moveNoButton();
-});
-
-// Pointer events — лучший вариант (мышь + тач + стилус)
-noBtn.addEventListener('pointerenter', () => {
-  moveNoButton();
-});
-
-// Если человек пытается нажать — тоже убегает
+// --- Make NO run away forever ---
+// pointerenter works for mouse + stylus; pointerdown works for taps
+noBtn.addEventListener('pointerenter', moveNoButton);
 noBtn.addEventListener('pointerdown', (e) => {
-  // На телефоне иначе может "кликнуться" или залипнуть
-  e.preventDefault();
+  e.preventDefault(); // stop click on mobile
   moveNoButton();
 });
 
-// Дополнительно: на некоторых мобильных браузерах helpful
+// Extra safety for some mobile browsers
 noBtn.addEventListener('touchstart', (e) => {
   e.preventDefault();
   moveNoButton();
 }, { passive: false });
+
+// Keep NO inside screen when viewport changes (rotation, address bar, resize)
+window.addEventListener('resize', moveNoButton);
+window.visualViewport?.addEventListener('resize', moveNoButton);
+window.visualViewport?.addEventListener('scroll', moveNoButton);
 
 // -------------------------------
 // YES button logic
@@ -74,14 +74,9 @@ yesBtn.addEventListener('click', () => {
   startConfetti();
 });
 
+// Close modal
 closeModal.addEventListener('click', () => {
   modal.classList.add('hidden');
-});
-
-// При изменении размера — вернем кнопку в нормальный режим
-window.addEventListener('resize', () => {
-  // Можно оставить текущую позицию, но безопаснее — пересчитать
-  moveNoButton();
 });
 
 // -------------------------------
@@ -97,7 +92,7 @@ function startConfetti() {
 
   const rand = (min, max) => Math.random() * (max - min) + min;
 
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 140; i++) {
     pieces.push({
       x: rand(0, confettiCanvas.width),
       y: rand(-confettiCanvas.height, 0),
@@ -105,8 +100,8 @@ function startConfetti() {
       h: rand(8, 16),
       color: colors[Math.floor(Math.random() * colors.length)],
       r: rand(0, Math.PI * 2),
-      speed: rand(1, 3),
-      rotate: rand(-0.05, 0.05)
+      speed: rand(1.2, 3.2),
+      rotate: rand(-0.06, 0.06)
     });
   }
 
@@ -117,7 +112,7 @@ function startConfetti() {
 
     for (const p of pieces) {
       p.y += p.speed;
-      p.x += Math.sin(p.r) * 0.8;
+      p.x += Math.sin(p.r) * 0.9;
       p.r += p.rotate;
 
       ctx.save();
@@ -129,11 +124,8 @@ function startConfetti() {
     }
 
     frames++;
-    if (frames < 300) {
-      requestAnimationFrame(loop);
-    } else {
-      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    }
+    if (frames < 320) requestAnimationFrame(loop);
+    else ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
   }
 
   loop();
@@ -145,6 +137,10 @@ function startConfetti() {
 document.querySelector('.card').addEventListener('click', () => {
   const title = document.querySelector('.title');
   const original = title.textContent;
+
   title.textContent = "Assel, be my Valentine? 💕";
-  setTimeout(() => { title.textContent = original; }, 1600);
+  setTimeout(() => (title.textContent = original), 1600);
 });
+
+// Optional: place NO safely once at start (not required)
+// window.addEventListener('load', moveNoButton);
