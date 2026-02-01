@@ -8,31 +8,63 @@ const modal = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
+// Чтобы кнопка NO всегда была поверх карточки
+noBtn.style.zIndex = '10';
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
 // -------------------------------
-// NO button always runs away
+// NO button always stays on-screen
 // -------------------------------
 function moveNoButton() {
-  const btnWidth = noBtn.offsetWidth;
-  const btnHeight = noBtn.offsetHeight;
+  const padding = 16;
 
-  const padding = 20;
+  // Реальные размеры кнопки (надежнее, чем getBoundingClientRect в момент анимаций)
+  const btnWidth = noBtn.offsetWidth || 100;
+  const btnHeight = noBtn.offsetHeight || 40;
 
-  const maxX = window.innerWidth - btnWidth - padding;
-  const maxY = window.innerHeight - btnHeight - padding;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
+  // Границы, чтобы кнопка НЕ выходила за экран
+  const minX = padding;
+  const minY = padding;
+  const maxX = Math.max(minX, vw - btnWidth - padding);
+  const maxY = Math.max(minY, vh - btnHeight - padding);
+
+  const x = clamp(Math.floor(Math.random() * (maxX - minX + 1)) + minX, minX, maxX);
+  const y = clamp(Math.floor(Math.random() * (maxY - minY + 1)) + minY, minY, maxY);
 
   noBtn.style.position = 'fixed';
   noBtn.style.left = `${x}px`;
   noBtn.style.top = `${y}px`;
 }
 
-// убегает при наведении (ПК)
-noBtn.addEventListener('mouseenter', moveNoButton);
+// На всякий случай: стартовая позиция внутри экрана
+window.addEventListener('load', () => {
+  // чтобы не прыгала сразу — можно закомментировать
+  // moveNoButton();
+});
 
-// убегает при попытке нажать (телефон)
-noBtn.addEventListener('touchstart', moveNoButton);
+// Pointer events — лучший вариант (мышь + тач + стилус)
+noBtn.addEventListener('pointerenter', () => {
+  moveNoButton();
+});
+
+// Если человек пытается нажать — тоже убегает
+noBtn.addEventListener('pointerdown', (e) => {
+  // На телефоне иначе может "кликнуться" или залипнуть
+  e.preventDefault();
+  moveNoButton();
+});
+
+// Дополнительно: на некоторых мобильных браузерах helpful
+noBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  moveNoButton();
+}, { passive: false });
 
 // -------------------------------
 // YES button logic
@@ -42,16 +74,14 @@ yesBtn.addEventListener('click', () => {
   startConfetti();
 });
 
-// Close modal
 closeModal.addEventListener('click', () => {
   modal.classList.add('hidden');
 });
 
-// Reset NO button on resize
+// При изменении размера — вернем кнопку в нормальный режим
 window.addEventListener('resize', () => {
-  noBtn.style.position = '';
-  noBtn.style.left = '';
-  noBtn.style.top = '';
+  // Можно оставить текущую позицию, но безопаснее — пересчитать
+  moveNoButton();
 });
 
 // -------------------------------
@@ -63,29 +93,20 @@ function startConfetti() {
   confettiCanvas.height = window.innerHeight;
 
   const pieces = [];
-  const colors = [
-    '#ff4d7e',
-    '#ffb3c7',
-    '#ffd6e0',
-    '#ffd27a',
-    '#ffc17a',
-    '#a6ffcb'
-  ];
+  const colors = ['#ff4d7e','#ffb3c7','#ffd6e0','#ffd27a','#ffc17a','#a6ffcb'];
 
-  function random(min, max) {
-    return Math.random() * (max - min) + min;
-  }
+  const rand = (min, max) => Math.random() * (max - min) + min;
 
   for (let i = 0; i < 120; i++) {
     pieces.push({
-      x: random(0, confettiCanvas.width),
-      y: random(-confettiCanvas.height, 0),
-      w: random(6, 12),
-      h: random(8, 16),
+      x: rand(0, confettiCanvas.width),
+      y: rand(-confettiCanvas.height, 0),
+      w: rand(6, 12),
+      h: rand(8, 16),
       color: colors[Math.floor(Math.random() * colors.length)],
-      r: random(0, Math.PI * 2),
-      speed: random(1, 3),
-      rotate: random(-0.05, 0.05)
+      r: rand(0, Math.PI * 2),
+      speed: rand(1, 3),
+      rotate: rand(-0.05, 0.05)
     });
   }
 
@@ -96,7 +117,7 @@ function startConfetti() {
 
     for (const p of pieces) {
       p.y += p.speed;
-      p.x += Math.sin(p.r);
+      p.x += Math.sin(p.r) * 0.8;
       p.r += p.rotate;
 
       ctx.save();
@@ -124,10 +145,6 @@ function startConfetti() {
 document.querySelector('.card').addEventListener('click', () => {
   const title = document.querySelector('.title');
   const original = title.textContent;
-
   title.textContent = "Assel, be my Valentine? 💕";
-
-  setTimeout(() => {
-    title.textContent = original;
-  }, 1600);
+  setTimeout(() => { title.textContent = original; }, 1600);
 });
