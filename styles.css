@@ -9,29 +9,29 @@
 
 *{ box-sizing:border-box; }
 
-/* ✅ absolutely no scrollbars */
+/* ✅ ЖЕЛЕЗНО: никакого скролла (ни по X, ни по Y) */
 html, body{
   margin:0;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;         /* <- убирает и вертикальный и горизонтальный скролл */
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
 }
 
 body{
+  position:fixed;          /* ✅ фиксируем страницу как “экран” */
+  inset:0;                 /* top:0 right:0 bottom:0 left:0 */
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   display:flex;
   align-items:center;
   justify-content:center;
-
-  /* padding можно оставить, но он иногда даёт лишний скролл,
-     поэтому делаем его на внутреннем контейнере, а не на body */
 }
 
 .wrap{
   width:100%;
   max-width:760px;
-  padding:24px;            /* ✅ переносим padding сюда */
+  padding:24px;            /* padding делаем тут, а не на body */
 }
 
 .card{
@@ -74,7 +74,7 @@ body{
   transition: transform .15s ease, box-shadow .15s ease;
   user-select:none;
 
-  /* ✅ important for mobile */
+  /* ✅ для телефона */
   touch-action:none;
   -webkit-tap-highlight-color: transparent;
 }
