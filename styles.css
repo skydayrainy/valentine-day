@@ -10,6 +10,11 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 
+/* ✅ IMPORTANT: prevent horizontal scroll if anything tries to go outside */
+html, body{
+  overflow-x: hidden;
+}
+
 body{
   margin:0;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -20,11 +25,7 @@ body{
   padding:24px;
 }
 
-.wrap{
-  width:100%;
-  max-width:760px;
-  padding:16px;
-}
+.wrap{width:100%;max-width:760px;padding:16px}
 
 .card{
   background: var(--card);
@@ -65,11 +66,13 @@ body{
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   transition: transform .15s ease, box-shadow .15s ease;
   user-select:none;
+
+  /* ✅ IMPORTANT for mobile: prevents weird tap/scroll behavior */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.btn:active{
-  transform:translateY(1px);
-}
+.btn:active{transform:translateY(1px)}
 
 .btn-yes{
   background: linear-gradient(90deg,#ff7aa2,#ff4d7e);
@@ -82,11 +85,7 @@ body{
   border:1px solid #eee;
 }
 
-.hint{
-  color:#888;
-  margin:6px 0 0;
-  font-size:0.9rem;
-}
+.hint{color:#888;margin:6px 0 0;font-size:0.9rem}
 
 /* modal */
 .modal{
@@ -99,9 +98,7 @@ body{
   z-index:30;
 }
 
-.modal.hidden{
-  display:none;
-}
+.modal.hidden{display:none}
 
 .modal-inner{
   background:white;
@@ -123,13 +120,9 @@ body{
   color:#666;
 }
 
-.small{
-  color:#666;
-  font-size:0.9rem;
-  margin-top:6px;
-}
+.small{color:#666;font-size:0.9rem;margin-top:6px}
 
-/* confetti canvas */
+/* confetti canvas occupies full screen but pointer-events none */
 .confetti{
   position:fixed;
   inset:0;
