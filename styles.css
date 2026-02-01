@@ -9,7 +9,6 @@
 
 *{ box-sizing:border-box; }
 
-/* ✅ ЖЕЛЕЗНО: никакого скролла (ни по X, ни по Y) */
 html, body{
   margin:0;
   padding:0;
@@ -19,8 +18,8 @@ html, body{
 }
 
 body{
-  position:fixed;          /* ✅ фиксируем страницу как “экран” */
-  inset:0;                 /* top:0 right:0 bottom:0 left:0 */
+  position:fixed;
+  inset:0;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   display:flex;
@@ -28,13 +27,21 @@ body{
   justify-content:center;
 }
 
+/* ✅ THIS IS THE “PINK PAGE AREA” */
 .wrap{
-  width:100%;
-  max-width:760px;
-  padding:24px;            /* padding делаем тут, а не на body */
+  position:relative;         /* ✅ makes absolute NO button stay inside */
+  width: min(100vw, 980px);  /* visible pink area width */
+  height: min(100vh, 560px); /* visible pink area height */
+  padding:24px;
 }
 
+/* Card centered inside wrap */
 .card{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width: min(760px, 100%);
   background: var(--card);
   border-radius: var(--radius);
   padding:36px;
@@ -73,8 +80,6 @@ body{
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   transition: transform .15s ease, box-shadow .15s ease;
   user-select:none;
-
-  /* ✅ для телефона */
   touch-action:none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -107,6 +112,7 @@ body{
 .modal.hidden{ display:none; }
 
 .modal-inner{
+  position:relative;
   background:white;
   padding:22px 26px;
   border-radius:12px;
