@@ -7,25 +7,32 @@
   --radius: 16px;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+*{ box-sizing:border-box; }
 
-/* ✅ IMPORTANT: prevent horizontal scroll if anything tries to go outside */
+/* ✅ absolutely no scrollbars */
 html, body{
-  overflow-x: hidden;
+  margin:0;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;         /* <- убирает и вертикальный и горизонтальный скролл */
 }
 
 body{
-  margin:0;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:24px;
+
+  /* padding можно оставить, но он иногда даёт лишний скролл,
+     поэтому делаем его на внутреннем контейнере, а не на body */
 }
 
-.wrap{width:100%;max-width:760px;padding:16px}
+.wrap{
+  width:100%;
+  max-width:760px;
+  padding:24px;            /* ✅ переносим padding сюда */
+}
 
 .card{
   background: var(--card);
@@ -67,12 +74,12 @@ body{
   transition: transform .15s ease, box-shadow .15s ease;
   user-select:none;
 
-  /* ✅ IMPORTANT for mobile: prevents weird tap/scroll behavior */
-  touch-action: none;
+  /* ✅ important for mobile */
+  touch-action:none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn:active{transform:translateY(1px)}
+.btn:active{ transform:translateY(1px); }
 
 .btn-yes{
   background: linear-gradient(90deg,#ff7aa2,#ff4d7e);
@@ -85,7 +92,7 @@ body{
   border:1px solid #eee;
 }
 
-.hint{color:#888;margin:6px 0 0;font-size:0.9rem}
+.hint{ color:#888; margin:6px 0 0; font-size:0.9rem; }
 
 /* modal */
 .modal{
@@ -97,8 +104,7 @@ body{
   background:rgba(0,0,0,0.35);
   z-index:30;
 }
-
-.modal.hidden{display:none}
+.modal.hidden{ display:none; }
 
 .modal-inner{
   background:white;
@@ -120,9 +126,9 @@ body{
   color:#666;
 }
 
-.small{color:#666;font-size:0.9rem;margin-top:6px}
+.small{ color:#666; font-size:0.9rem; margin-top:6px; }
 
-/* confetti canvas occupies full screen but pointer-events none */
+/* confetti */
 .confetti{
   position:fixed;
   inset:0;
