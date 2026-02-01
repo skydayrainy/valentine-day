@@ -1,46 +1,32 @@
-// ===============================
-// Valentine interactive script
-// NO runs forever + never causes scrollbars (PC + mobile)
-// ===============================
-
 const yesBtn = document.getElementById('yesBtn');
 const noBtn  = document.getElementById('noBtn');
 const modal  = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
-noBtn.style.zIndex = '50';
+noBtn.style.zIndex = '9999';
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-// ✅ use the real visible viewport box
-function viewportBox() {
-  const vv = window.visualViewport;
-  if (vv) {
-    // vv.width/height = visible area, vv.offsetLeft/Top = shift on mobile
-    return {
-      left: vv.offsetLeft,
-      top: vv.offsetTop,
-      width: vv.width,
-      height: vv.height
-    };
-  }
-  // fallback
-  return { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+function getViewportSize() {
+  // ✅ самое стабильное для “видимой области”
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+  return { vw, vh };
 }
 
 function moveNoButton() {
   const padding = 16;
-  const vp = viewportBox();
+  const { vw, vh } = getViewportSize();
 
   const bw = noBtn.offsetWidth  || 110;
   const bh = noBtn.offsetHeight || 44;
 
-  const minX = vp.left + padding;
-  const minY = vp.top  + padding;
+  const minX = padding;
+  const minY = padding;
 
-  const maxX = Math.max(minX, vp.left + vp.width  - bw - padding);
-  const maxY = Math.max(minY, vp.top  + vp.height - bh - padding);
+  const maxX = Math.max(minX, vw - bw - padding);
+  const maxY = Math.max(minY, vh - bh - padding);
 
   const x = clamp(
     Math.floor(Math.random() * (maxX - minX + 1)) + minX,
@@ -57,23 +43,23 @@ function moveNoButton() {
   noBtn.style.top  = `${y}px`;
 }
 
-// ✅ works on mouse + touch
+// ПК: навёл — убежала
 noBtn.addEventListener('pointerenter', moveNoButton);
+
+// Телефон/ПК: попытался нажать — убежала
 noBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   moveNoButton();
 });
 
-// extra iOS safety
+// iOS safety
 noBtn.addEventListener('touchstart', (e) => {
   e.preventDefault();
   moveNoButton();
 }, { passive: false });
 
-// keep inside on viewport changes
+// Если экран меняется — пересчёт
 window.addEventListener('resize', moveNoButton);
-window.visualViewport?.addEventListener('resize', moveNoButton);
-window.visualViewport?.addEventListener('scroll', moveNoButton);
 
 // YES
 yesBtn.addEventListener('click', () => {
@@ -85,12 +71,10 @@ closeModal.addEventListener('click', () => {
   modal.classList.add('hidden');
 });
 
-// -----------------------------
 // Confetti
-// -----------------------------
 function startConfetti() {
   const ctx = confettiCanvas.getContext('2d');
-  confettiCanvas.width  = window.innerWidth;
+  confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
 
   const pieces = [];
