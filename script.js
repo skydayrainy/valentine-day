@@ -1,81 +1,86 @@
 // ===============================
 // Valentine interactive script
-// NO runs forever + stays on screen (PC + mobile)
-// Fixes: no overflow / no disappearing
+// NO runs forever + never causes scrollbars (PC + mobile)
 // ===============================
 
 const yesBtn = document.getElementById('yesBtn');
-const noBtn = document.getElementById('noBtn');
-const modal = document.getElementById('modal');
+const noBtn  = document.getElementById('noBtn');
+const modal  = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
-// Ensure NO stays above card and doesn't get hidden
 noBtn.style.zIndex = '50';
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-function getViewport() {
-  // ✅ Real visible viewport (prevents going outside and causing horizontal scroll)
-  const vw = document.documentElement.clientWidth;
-  const vh = document.documentElement.clientHeight;
-  return { vw, vh };
+// ✅ use the real visible viewport box
+function viewportBox() {
+  const vv = window.visualViewport;
+  if (vv) {
+    // vv.width/height = visible area, vv.offsetLeft/Top = shift on mobile
+    return {
+      left: vv.offsetLeft,
+      top: vv.offsetTop,
+      width: vv.width,
+      height: vv.height
+    };
+  }
+  // fallback
+  return { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
 }
 
 function moveNoButton() {
   const padding = 16;
-  const { vw, vh } = getViewport();
+  const vp = viewportBox();
 
-  const bw = noBtn.offsetWidth || 110;
+  const bw = noBtn.offsetWidth  || 110;
   const bh = noBtn.offsetHeight || 44;
 
-  const minX = padding;
-  const minY = padding;
+  const minX = vp.left + padding;
+  const minY = vp.top  + padding;
 
-  const maxX = Math.max(minX, vw - bw - padding);
-  const maxY = Math.max(minY, vh - bh - padding);
+  const maxX = Math.max(minX, vp.left + vp.width  - bw - padding);
+  const maxY = Math.max(minY, vp.top  + vp.height - bh - padding);
 
   const x = clamp(
     Math.floor(Math.random() * (maxX - minX + 1)) + minX,
-    minX,
-    maxX
+    minX, maxX
   );
 
   const y = clamp(
     Math.floor(Math.random() * (maxY - minY + 1)) + minY,
-    minY,
-    maxY
+    minY, maxY
   );
 
   noBtn.style.position = 'fixed';
   noBtn.style.left = `${x}px`;
-  noBtn.style.top = `${y}px`;
+  noBtn.style.top  = `${y}px`;
 }
 
-// Make NO run away forever
+// ✅ works on mouse + touch
 noBtn.addEventListener('pointerenter', moveNoButton);
 noBtn.addEventListener('pointerdown', (e) => {
-  e.preventDefault(); // stop clicks on mobile
+  e.preventDefault();
   moveNoButton();
 });
 
-// Extra safety for iOS Safari
+// extra iOS safety
 noBtn.addEventListener('touchstart', (e) => {
   e.preventDefault();
   moveNoButton();
 }, { passive: false });
 
-// Keep it inside when screen changes (rotate, resize, address bar)
+// keep inside on viewport changes
 window.addEventListener('resize', moveNoButton);
 window.visualViewport?.addEventListener('resize', moveNoButton);
+window.visualViewport?.addEventListener('scroll', moveNoButton);
 
-// YES button
+// YES
 yesBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
   startConfetti();
 });
 
-// Close modal
 closeModal.addEventListener('click', () => {
   modal.classList.add('hidden');
 });
@@ -85,12 +90,11 @@ closeModal.addEventListener('click', () => {
 // -----------------------------
 function startConfetti() {
   const ctx = confettiCanvas.getContext('2d');
-  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.width  = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
 
   const pieces = [];
   const colors = ['#ff4d7e','#ffb3c7','#ffd6e0','#ffd27a','#ffc17a','#a6ffcb'];
-
   const rand = (min, max) => Math.random() * (max - min) + min;
 
   for (let i = 0; i < 140; i++) {
@@ -132,7 +136,7 @@ function startConfetti() {
   loop();
 }
 
-// Easter egg (optional)
+// Easter egg
 document.querySelector('.card').addEventListener('click', () => {
   const title = document.querySelector('.title');
   const original = title.textContent;
