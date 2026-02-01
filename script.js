@@ -1,4 +1,6 @@
-// script.js - interactive behaviour
+// ===============================
+// Valentine interactive script
+// ===============================
 
 const yesBtn = document.getElementById('yesBtn');
 const noBtn = document.getElementById('noBtn');
@@ -6,30 +8,35 @@ const modal = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
-// Move the NO button to a random position (keeps inside viewport)
+// -------------------------------
+// NO button always runs away
+// -------------------------------
 function moveNoButton() {
-  const rect = noBtn.getBoundingClientRect();
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const margin = 20;
+  const btnWidth = noBtn.offsetWidth;
+  const btnHeight = noBtn.offsetHeight;
 
-  const maxX = Math.max(0, vw - rect.width - margin);
-  const maxY = Math.max(0, vh - rect.height - margin);
+  const padding = 20;
 
-  const x = Math.floor(Math.random() * maxX) + margin;
-  const y = Math.floor(Math.random() * maxY) + margin;
+  const maxX = window.innerWidth - btnWidth - padding;
+  const maxY = window.innerHeight - btnHeight - padding;
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
 
   noBtn.style.position = 'fixed';
-  noBtn.style.left = x + 'px';
-  noBtn.style.top = y + 'px';
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
 }
 
-// Hover on NO → it runs away
-noBtn.addEventListener('mouseenter', () => {
-  moveNoButton();
-});
+// убегает при наведении (ПК)
+noBtn.addEventListener('mouseenter', moveNoButton);
 
-// Click YES
+// убегает при попытке нажать (телефон)
+noBtn.addEventListener('touchstart', moveNoButton);
+
+// -------------------------------
+// YES button logic
+// -------------------------------
 yesBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
   startConfetti();
@@ -47,16 +54,23 @@ window.addEventListener('resize', () => {
   noBtn.style.top = '';
 });
 
-// -----------------------------
-// Confetti
-// -----------------------------
+// -------------------------------
+// Confetti animation
+// -------------------------------
 function startConfetti() {
   const ctx = confettiCanvas.getContext('2d');
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
 
   const pieces = [];
-  const colors = ['#ff4d7e','#ffb3c7','#ffd6e0','#ffd27a','#ffc17a','#a6ffcb'];
+  const colors = [
+    '#ff4d7e',
+    '#ffb3c7',
+    '#ffd6e0',
+    '#ffd27a',
+    '#ffc17a',
+    '#a6ffcb'
+  ];
 
   function random(min, max) {
     return Math.random() * (max - min) + min;
@@ -70,8 +84,8 @@ function startConfetti() {
       h: random(8, 16),
       color: colors[Math.floor(Math.random() * colors.length)],
       r: random(0, Math.PI * 2),
-      s: random(1, 3),
-      rx: random(-0.05, 0.05)
+      speed: random(1, 3),
+      rotate: random(-0.05, 0.05)
     });
   }
 
@@ -81,9 +95,9 @@ function startConfetti() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 
     for (const p of pieces) {
-      p.y += p.s;
-      p.x += Math.sin(p.r) * 0.8;
-      p.r += p.rx;
+      p.y += p.speed;
+      p.x += Math.sin(p.r);
+      p.r += p.rotate;
 
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -104,12 +118,16 @@ function startConfetti() {
   loop();
 }
 
-// Easter egg: click card text
+// -------------------------------
+// Easter egg: click on card
+// -------------------------------
 document.querySelector('.card').addEventListener('click', () => {
-  const t = document.querySelector('.title');
-  const original = t.textContent;
-  t.textContent = "Assel, be my Valentine? 💕";
+  const title = document.querySelector('.title');
+  const original = title.textContent;
+
+  title.textContent = "Assel, be my Valentine? 💕";
+
   setTimeout(() => {
-    t.textContent = original;
+    title.textContent = original;
   }, 1600);
 });
