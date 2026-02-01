@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Will you be my Valentine?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Hey Assel ❤️</title>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+  <!-- PINK MAIN PAGE AREA -->
   <main class="wrap">
+
+    <!-- CENTER CARD -->
     <div class="card">
       <h1 class="title">Hey Assel ❤️</h1>
       <p class="subtitle">Would you like to go out with me this Valentine?</p>
@@ -17,21 +23,26 @@
         <button id="noBtn" class="btn btn-no">NO</button>
       </div>
 
-      <p class="hint">(Click yes or try to chase the no button 😅)</p>
+      <p class="hint">(Click YES or try to chase the NO button 😅)</p>
     </div>
+
   </main>
 
+  <!-- MODAL -->
   <div id="modal" class="modal hidden">
     <div class="modal-inner">
       <button id="closeModal" class="modal-close">&times;</button>
       <h2>Yay, Assel! 🎉</h2>
-      <p>I'm so happy you said YES — let's plan our Valentine date 💖</p>
-      <p class="small">Share this page and send it to me 😊</p>
+      <p>I'm really happy you said YES 💖</p>
+      <p class="small">Let’s plan our Valentine date 😊</p>
     </div>
   </div>
 
+  <!-- CONFETTI -->
   <canvas id="confettiCanvas" class="confetti"></canvas>
 
+  <!-- Script -->
   <script src="script.js"></script>
+
 </body>
 </html>
