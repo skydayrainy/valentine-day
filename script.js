@@ -4,62 +4,54 @@ const modal  = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const confettiCanvas = document.getElementById('confettiCanvas');
 
-noBtn.style.zIndex = '9999';
+const wrap = document.querySelector('.wrap');
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-function getViewportSize() {
-  // ✅ самое стабильное для “видимой области”
-  const vw = document.documentElement.clientWidth;
-  const vh = document.documentElement.clientHeight;
-  return { vw, vh };
-}
+function moveNoButtonInsideWrap() {
+  const padding = 12;
 
-function moveNoButton() {
-  const padding = 16;
-  const { vw, vh } = getViewportSize();
+  // Ensure NO is positioned relative to the wrap
+  noBtn.style.position = 'absolute';
+  noBtn.style.zIndex = '50';
 
-  const bw = noBtn.offsetWidth  || 110;
+  const wrapRect = wrap.getBoundingClientRect();
+
+  // Button size
+  const bw = noBtn.offsetWidth || 110;
   const bh = noBtn.offsetHeight || 44;
 
+  // Limits INSIDE wrap
   const minX = padding;
   const minY = padding;
+  const maxX = Math.max(minX, wrapRect.width  - bw - padding);
+  const maxY = Math.max(minY, wrapRect.height - bh - padding);
 
-  const maxX = Math.max(minX, vw - bw - padding);
-  const maxY = Math.max(minY, vh - bh - padding);
+  // Random point inside wrap
+  const x = clamp(Math.floor(Math.random() * (maxX - minX + 1)) + minX, minX, maxX);
+  const y = clamp(Math.floor(Math.random() * (maxY - minY + 1)) + minY, minY, maxY);
 
-  const x = clamp(
-    Math.floor(Math.random() * (maxX - minX + 1)) + minX,
-    minX, maxX
-  );
-
-  const y = clamp(
-    Math.floor(Math.random() * (maxY - minY + 1)) + minY,
-    minY, maxY
-  );
-
-  noBtn.style.position = 'fixed';
   noBtn.style.left = `${x}px`;
   noBtn.style.top  = `${y}px`;
 }
 
 // ПК: навёл — убежала
-noBtn.addEventListener('pointerenter', moveNoButton);
+noBtn.addEventListener('pointerenter', moveNoButtonInsideWrap);
 
 // Телефон/ПК: попытался нажать — убежала
 noBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  moveNoButton();
+  moveNoButtonInsideWrap();
 });
 
 // iOS safety
 noBtn.addEventListener('touchstart', (e) => {
   e.preventDefault();
-  moveNoButton();
+  moveNoButtonInsideWrap();
 }, { passive: false });
 
-// Если экран меняется — пересчёт
-window.addEventListener('resize', moveNoButton);
+// Если размер меняется — пересчёт
+window.addEventListener('resize', moveNoButtonInsideWrap);
 
 // YES
 yesBtn.addEventListener('click', () => {
