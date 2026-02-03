@@ -116,6 +116,6 @@ function startConfetti() {
 document.querySelector('.card').addEventListener('click', () => {
   const title = document.querySelector('.title');
   const original = title.textContent;
-  title.textContent = "Assel, be my Valentine? 💕";
+  title.textContent = "Amira, be my Valentine? 💕";
   setTimeout(() => (title.textContent = original), 1600);
 });
